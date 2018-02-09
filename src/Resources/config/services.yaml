@@ -1,0 +1,18 @@
+services:
+  sp_real_time.configuration:
+    class: SP\RealTimeBundle\RealTimeConfiguration
+    arguments: ["@service_container", "%sp_real_time.configuration%"]
+
+  sp_real_time.event_dispatcher:
+    class: SP\RealTimeBundle\Event\EventDispatcher
+    arguments: ["@event_dispatcher"]
+
+  sp_real_time.presence:
+    class: SP\RealTimeBundle\Presence\PresenceService
+    arguments: ["@sp_real_time.configuration", "@sp_real_time.event_dispatcher"]
+    public: true
+
+  sp_real_time.sender:
+    class: SP\RealTimeBundle\Service\SenderService
+    arguments: ["@sp_real_time.configuration", "@sp_real_time.event_dispatcher", "@sp_real_time.presence"]
+    public: true
