@@ -1,0 +1,26 @@
+{
+  "name": "sperrichon/real-time-bundle",
+  "type": "symfony-bundle",
+  "version": "0.0.0-dev",
+  "description": "Real-time events from server to browsers and mobile devices",
+  "keywords": ["bundle", "realtime", "real", "time", "message", "presence", "ably"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Samuel Perrichon",
+      "email": "sperrichon@users.noreply.github.com"
+    }
+  ],
+  "require": {
+    "php": ">= 7.1",
+    "symfony/framework-bundle": "~3.4|^4",
+    "symfony/event-dispatcher": "~3.4|^4",
+    "symfony/config": "~3.4|^4",
+    "ramsey/uuid": "^3.0",
+    "ably/ably-php": "^1.0",
+    "predis/predis": "^1.1"
+  },
+  "autoload": {
+    "psr-4": { "SP\\RealTimeBundle\\": "src" }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "real-time-bundle-lib",
+  "version": "0.0.0-dev",
+  "description": "Real-time events from server to browsers and mobile devices",
+  "main": "js/index.js",
+  "author": {
+    "name": "Samuel Perrichon",
+    "email": "sperrichon@users.noreply.github.com"
+  },
+  "license": "MIT",
+  "scripts": {
+    "lint": "xo",
+    "lint:fix": "xo --fix"
+  },
+  "xo": {
+    "env": [
+      "browser"
+    ],
+    "esnext": true,
+    "space": 4
+  },
+  "dependencies": {
+    "ably": "^1.0.13",
+    "eventemitter3": "^3.0.1"
+  },
+  "devDependencies": {
+    "xo": "^0.18.2"
+  }
+}
