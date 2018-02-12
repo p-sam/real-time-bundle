@@ -22,16 +22,14 @@ module.exports = class AblyChannel extends Channel {
                 authCallback: authCallbackFactory(this)
             });
 
-            this._ablyRealtime.connection.on('connected', () => {
-                this._ablyRealtime.channels.get(this._name).subscribe(message => {
-                    if (message.name === this._name) {
-                        this.emit(Channel.EVENTS.MESSAGE, message.data);
-                    }
-                });
-                this.emit(Channel.EVENTS.CONNECTED);
-            });
-
+            this._ablyRealtime.connection.on('connected', () => this.emit(Channel.EVENTS.CONNECTED));
             this._ablyRealtime.connection.on('disconnected', () => this.emit(Channel.EVENTS.DISCONNECTED));
+
+            this._ablyRealtime.channels.get(this._name).subscribe(message => {
+                if (message.name === this._name) {
+                    this.emit(Channel.EVENTS.MESSAGE, message.data);
+                }
+            });
         }
     }
 
