@@ -48,6 +48,7 @@ Configure the `predis` client and `ably` key in your `config.yml`:
 sp_realtime:
     ably:
         api_key: '- ably key here -'
+        ttl: 3600 # in seconds
     redis:
         client: 'snc_redis.default'
         key_prefix: 'app:'
