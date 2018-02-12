@@ -13,6 +13,6 @@ services:
     public: true
 
   sp_real_time.sender:
-    class: SP\RealTimeBundle\Service\SenderService
+    class: SP\RealTimeBundle\Message\SenderService
     arguments: ["@sp_real_time.configuration", "@sp_real_time.event_dispatcher", "@sp_real_time.presence"]
     public: true
