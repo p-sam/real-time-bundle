@@ -1,4 +1,9 @@
 <?php
+$finder = PhpCsFixer\Finder::create()
+    ->in(__DIR__ . '/src')
+    ->notPath('DependencyInjection/Configuration.php');
+;
+
 $config = PhpCsFixer\Config::create()
     ->setRiskyAllowed(true)
     ->setRules([
@@ -44,11 +49,7 @@ $config = PhpCsFixer\Config::create()
         'strict_param' => true,
         'yoda_style' => true,
     ])
-    ->setFinder(
-        PhpCsFixer\Finder::create()
-            ->exclude('tests/Fixtures')
-            ->in(__DIR__)
-    )
+    ->setFinder($finder)
 ;
 
 // special handling of fabbot.io service if it's using too old PHP CS Fixer version
