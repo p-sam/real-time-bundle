@@ -36,7 +36,7 @@ class RealTimeConfiguration
     public function __construct(Container $container, array $config)
     {
         // connector routing would happen here if multiple connectors were supported
-        $this->connector = new AblyConnector($config['ably']['api_key']);
+        $this->connector = new AblyConnector($config['ably']['api_key'], $config['ably']['ttl']);
 
         $this->presenceStorage = new PresenceStorage(
             $container->get($config['redis']['client']),
