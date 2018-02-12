@@ -25,7 +25,11 @@ module.exports = class RestClient {
     }
 
     async subscribe(channel) {
-        return restCall(this._baseUrl, 'POST', 'presence/' + channel);
+        const token = await restCall(this._baseUrl, 'POST', 'presence/' + channel);
+
+        token.expires = new Date(token.expires);
+
+        return token;
     }
 
     async unsubscribe(channel, uuid) {

@@ -34,14 +34,18 @@ module.exports = class Channel extends EventEmitter {
     }
 
     async _releaseToken() {
-        if (this._token && this._name && this._rest) {
+        if (this._token) {
             const token = this._token;
             this._token = null;
 
-            try {
-                await this._rest.unsubscribeAsync(this._name, token.id);
-            } catch (err) {
-                await this._rest.unsubscribe(this._name, token.id).catch(() => {});
+            if (this._name && this._rest) {
+                if (token.expires - new Date()) {
+                    try {
+                        await this._rest.unsubscribeAsync(this._name, token.id);
+                    } catch (err) {
+                        await this._rest.unsubscribe(this._name, token.id).catch(() => {});
+                    }
+                }
             }
         }
     }
