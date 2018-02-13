@@ -24,8 +24,15 @@ class PresenceStorage
         $this->cachePrefix = $cachePrefix;
     }
 
+    public static function assertChannelStorable(string $channel) {
+        if(preg_match('/^:|:$|::|\*|[^\w-_:]/', $channel)) {
+            throw new \InvalidArgumentException('channel name \''.$channel.'\' is not valid and can\'t be stored');
+        }
+    }
+
     private function makeChannelKey(string $channel, string $discriminator)
     {
+        self::assertChannelStorable($channel);
         return '{'.$this->cachePrefix.'realtime:'.$channel.'}:'.$discriminator;
     }
 
@@ -120,6 +127,6 @@ class PresenceStorage
     {
         $key = $this->makeChannelIdKey($channel, $uuid);
 
-        return $this->redisClient->del($key) > 0;
+        return $this->redisClient->del([$key]) > 0;
     }
 }
