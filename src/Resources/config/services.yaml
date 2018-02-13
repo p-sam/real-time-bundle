@@ -3,16 +3,24 @@ services:
     class: SP\RealTimeBundle\RealTimeConfiguration
     arguments: ["@service_container", "%sp_real_time.configuration%"]
 
+  SP\RealTimeBundle\RealTimeConfiguration: "@sp_real_time.configuration"
+
   sp_real_time.event_dispatcher:
     class: SP\RealTimeBundle\Event\EventDispatcher
     arguments: ["@event_dispatcher"]
+
+  SP\RealTimeBundle\Event\EventDispatcher: "@sp_real_time.event_dispatcher"
 
   sp_real_time.presence:
     class: SP\RealTimeBundle\Presence\PresenceService
     arguments: ["@sp_real_time.configuration", "@sp_real_time.event_dispatcher"]
     public: true
 
+  SP\RealTimeBundle\Presence\PresenceService: "@sp_real_time.presence"
+
   sp_real_time.sender:
     class: SP\RealTimeBundle\Message\SenderService
     arguments: ["@sp_real_time.configuration", "@sp_real_time.event_dispatcher", "@sp_real_time.presence"]
     public: true
+
+  SP\RealTimeBundle\Message\SenderService: "@sp_real_time.sender"
