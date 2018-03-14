@@ -2,6 +2,8 @@
 
 namespace SP\RealTimeBundle\Event;
 
+use SP\RealTimeBundle\Message\Message;
+
 class MessageEvent extends AbstractEvent
 {
     /**
@@ -10,17 +12,17 @@ class MessageEvent extends AbstractEvent
     private $channel;
 
     /**
-     * @var string
+     * @var Message
      */
     private $message;
 
     /**
      * MessageEvent constructor.
      *
-     * @param string $channel
-     * @param string $message
+     * @param string  $channel
+     * @param Message $message
      */
-    public function __construct(string $channel, string $message)
+    public function __construct(string $channel, Message $message)
     {
         $this->channel = $channel;
         $this->message = $message;
@@ -35,9 +37,9 @@ class MessageEvent extends AbstractEvent
     }
 
     /**
-     * @return string
+     * @return Message
      */
-    public function getMessage(): string
+    public function getMessage(): Message
     {
         return $this->message;
     }

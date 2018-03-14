@@ -6,6 +6,7 @@ use Ably\AblyRest;
 use Ably\Exceptions\AblyException;
 use SP\RealTimeBundle\Connector\ConnectorInterface;
 use SP\RealTimeBundle\Connector\ConnectorTokenInterface;
+use SP\RealTimeBundle\Message\Message;
 
 class AblyConnector implements ConnectorInterface
 {
@@ -36,9 +37,9 @@ class AblyConnector implements ConnectorInterface
      *
      * @throws AblyException if the provided arguments are invalid or the request fails
      */
-    public function broadcast(string $channel, string $message)
+    public function broadcast(string $channel, Message $message)
     {
-        $this->ablyClient->channel($channel)->publish($channel, $message);
+        $this->ablyClient->channel($channel)->publish($channel, $message->jsonSerialize());
     }
 
     /**

@@ -34,24 +34,31 @@ class SenderService
     /**
      * Broadcasts a message to the specified channel.
      *
-     * @param string $channel
-     * @param string $message
+     * @param string        $channel
+     * @param Message|mixed $dataOrMessage
      */
-    public function broadcast(string $channel, string $message)
+    public function broadcast(string $channel, $dataOrMessage)
     {
         if ($this->presenceService->exists($channel)) {
-            $this->broadcastWithoutCheckingPresence($channel, $message);
+            $this->broadcastWithoutCheckingPresence($channel, $dataOrMessage);
         }
     }
 
     /**
      * Broadcasts a message to the specified channel even if no client seems subscribed.
      *
-     * @param string $channel
-     * @param string $message
+     * @param string        $channel
+     * @param Message|mixed $message
+     * @param mixed         $dataOrMessage
      */
-    public function broadcastWithoutCheckingPresence(string $channel, string $message)
+    public function broadcastWithoutCheckingPresence(string $channel, $dataOrMessage)
     {
+        if ($dataOrMessage instanceof Message) {
+            $message = $dataOrMessage;
+        } else {
+            $message = new Message($dataOrMessage);
+        }
+
         $this->configuration->getConfiguredConnector()->broadcast($channel, $message);
 
         $this->eventDispatcher->dispatch(new MessageEvent($channel, $message));

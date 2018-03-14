@@ -2,15 +2,17 @@
 
 namespace SP\RealTimeBundle\Connector;
 
+use SP\RealTimeBundle\Message\Message;
+
 interface ConnectorInterface
 {
     /**
      * Broadcasts a message to the specified channel.
      *
-     * @param string $channel
-     * @param string $message
+     * @param string  $channel
+     * @param Message $message
      */
-    public function broadcast(string $channel, string $message);
+    public function broadcast(string $channel, Message $message);
 
     /**
      * @param string $channel
