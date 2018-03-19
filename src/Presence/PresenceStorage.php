@@ -4,7 +4,6 @@ namespace SP\RealTimeBundle\Presence;
 
 use Predis\Client;
 use Predis\Collection\Iterator\Keyspace;
-use Predis\Transaction\MultiExec;
 use Ramsey\Uuid\UuidInterface;
 
 class PresenceStorage
@@ -74,14 +73,18 @@ class PresenceStorage
         }
 
         $key = $this->makePresenceTokenKey($presenceToken);
-        $this->redisClient->transaction(function (MultiExec $tx) use ($key, $presenceToken, $ttl) {
-            $tx->set($key, json_encode($presenceToken));
-            if (null === $ttl) {
-                $tx->persist($key);
-            } else {
-                $tx->expire($key, $ttl);
-            }
-        });
+
+        // Calling directly multi/exec instead of the transaction abstraction provided by Predis
+        // because the latter is not supported using Sentinel replication
+        // https://github.com/nrk/predis/issues/404
+        $this->redisClient->multi();
+        $this->redisClient->set($key, json_encode($presenceToken));
+        if (null === $ttl) {
+            $this->redisClient->persist($key);
+        } else {
+            $this->redisClient->expire($key, $ttl);
+        }
+        $this->redisClient->exec();
     }
 
     /**
