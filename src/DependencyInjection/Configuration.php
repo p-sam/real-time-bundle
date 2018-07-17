@@ -37,6 +37,9 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+                ->booleanNode('presence_check')
+                    ->defaultTrue()
+                ->end()
             ->end()
         ;
 

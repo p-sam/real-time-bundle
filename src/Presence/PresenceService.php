@@ -4,7 +4,6 @@ namespace SP\RealTimeBundle\Presence;
 
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
-use SP\RealTimeBundle\Connector\ConnectorInterface;
 use SP\RealTimeBundle\Event\EventDispatcher;
 use SP\RealTimeBundle\Event\SubscribeEvent;
 use SP\RealTimeBundle\RealTimeConfiguration;
@@ -12,14 +11,9 @@ use SP\RealTimeBundle\RealTimeConfiguration;
 class PresenceService
 {
     /**
-     * @var ConnectorInterface
+     * @var RealTimeConfiguration
      */
-    private $connector;
-
-    /**
-     * @var PresenceStorage
-     */
-    private $storage;
+    private $configuration;
 
     /**
      * @var EventDispatcher
@@ -34,8 +28,7 @@ class PresenceService
      */
     public function __construct(RealTimeConfiguration $configuration, EventDispatcher $eventDispatcher)
     {
-        $this->connector = $configuration->getConfiguredConnector();
-        $this->storage = $configuration->getConfiguredPresenceStorage();
+        $this->configuration = $configuration;
         $this->eventDispatcher = $eventDispatcher;
     }
 
@@ -46,10 +39,10 @@ class PresenceService
      */
     public function subscribe(string $channel): PresenceToken
     {
-        $connectorToken = $this->connector->subscribe($channel);
+        $connectorToken = $this->configuration->getConfiguredConnector()->subscribe($channel);
         $token = new PresenceToken($channel, $connectorToken, Uuid::uuid4());
 
-        $this->storage->store($token);
+        $this->configuration->getConfiguredPresenceStorage()->store($token);
 
         $this->eventDispatcher->dispatch(new SubscribeEvent($token));
 
@@ -64,16 +57,21 @@ class PresenceService
      */
     public function unsubscribe(string $channel, UuidInterface $uuid): bool
     {
-        return $this->storage->remove($channel, $uuid);
+        return $this->configuration->getConfiguredPresenceStorage()->remove($channel, $uuid);
     }
 
     /**
      * @param string $channel
+     * @param bool   $forceCheck
      *
      * @return bool true if the channel contains at least one presence
      */
-    public function exists(string $channel): bool
+    public function exists(string $channel, bool $forceCheck = false): bool
     {
-        return $this->storage->channelExists($channel);
+        if (!$forceCheck && !$this->configuration->isPresenceCheckingEnabled()) {
+            return true;
+        }
+
+        return $this->configuration->getConfiguredPresenceStorage()->channelExists($channel);
     }
 }

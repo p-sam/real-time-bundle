@@ -20,6 +20,11 @@ class RealTimeConfiguration
     private $presenceStorage;
 
     /**
+     * @var boolean Whether to check presence before sending
+     */
+    private $presenceCheckEnabled;
+
+    /**
      * RealTimeConfiguration constructor.
      *
      * @param Container $container
@@ -36,6 +41,8 @@ class RealTimeConfiguration
             $container->get($config['redis']['client']),
             $config['redis']['key_prefix']
         );
+
+        $this->presenceCheckEnabled = $config['presence_check'];
     }
 
     /**
@@ -52,5 +59,12 @@ class RealTimeConfiguration
     public function getConfiguredPresenceStorage(): PresenceStorage
     {
         return $this->presenceStorage;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPresenceCheckingEnabled(): bool {
+        return $this->presenceCheckEnabled;
     }
 }
