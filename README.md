@@ -52,6 +52,7 @@ sp_realtime:
     redis:
         client: 'snc_redis.default'
         key_prefix: 'app:'
+    presence_check: true
 ```
 
 ## Usage ##
