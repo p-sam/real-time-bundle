@@ -68,11 +68,11 @@ class PresenceService
     }
 
     /**
-     * @param $channel
+     * @param string $channel
      *
      * @return bool true if the channel contains at least one presence
      */
-    public function exists($channel): bool
+    public function exists(string $channel): bool
     {
         return $this->storage->channelExists($channel);
     }
