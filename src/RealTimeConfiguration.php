@@ -6,7 +6,6 @@ use SP\RealTimeBundle\Connector\Ably\AblyConnector;
 use SP\RealTimeBundle\Connector\ConnectorInterface;
 use SP\RealTimeBundle\Presence\PresenceStorage;
 use Symfony\Component\DependencyInjection\Container;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class RealTimeConfiguration
 {
@@ -19,11 +18,6 @@ class RealTimeConfiguration
      * @var PresenceStorage The presence persistence manager
      */
     private $presenceStorage;
-
-    /**
-     * @var EventDispatcher The event dispatcher
-     */
-    private $eventDispatcher;
 
     /**
      * RealTimeConfiguration constructor.
@@ -42,8 +36,6 @@ class RealTimeConfiguration
             $container->get($config['redis']['client']),
             $config['redis']['key_prefix']
         );
-
-        $this->eventDispatcher = $container->get('event_dispatcher');
     }
 
     /**
