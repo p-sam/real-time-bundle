@@ -1,0 +1,29 @@
+{
+  "name": "real-time-bundle-lib",
+  "version": "0.4.1",
+  "description": "Real-time events from server to browsers and mobile devices",
+  "main": "js/index.js",
+  "author": {
+    "name": "Samuel P.",
+    "email": "p-sam@d3vs.net"
+  },
+  "license": "MIT",
+  "scripts": {
+    "lint": "xo js",
+    "lint:fix": "npm run lint -- --fix"
+  },
+  "xo": {
+    "env": [
+      "browser"
+    ],
+    "esnext": true,
+    "space": 4
+  },
+  "dependencies": {
+    "ably": "^1.0.16",
+    "eventemitter3": "^3.1.0"
+  },
+  "devDependencies": {
+    "xo": "^0.21.1"
+  }
+}
