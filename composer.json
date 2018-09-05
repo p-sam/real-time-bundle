@@ -1,7 +1,7 @@
 {
   "name": "p-sam/real-time-bundle",
   "type": "symfony-bundle",
-  "version": "0.0.0-dev",
+  "version": "0.4.1",
   "description": "Real-time events from server to browsers and mobile devices",
   "keywords": ["bundle", "realtime", "real", "time", "message", "presence", "ably"],
   "license": "MIT",
