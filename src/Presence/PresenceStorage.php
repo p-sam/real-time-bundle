@@ -3,7 +3,6 @@
 namespace SP\RealTimeBundle\Presence;
 
 use Predis\Client;
-use Predis\Collection\Iterator\Keyspace;
 use Ramsey\Uuid\UuidInterface;
 
 class PresenceStorage
@@ -37,9 +36,9 @@ class PresenceStorage
         return '{'.$this->cachePrefix.'realtime:'.$channel.'}:'.$discriminator;
     }
 
-    private function makeChannelWildcard(string $channel)
+    private function makeChannelLastKey(string $channel)
     {
-        return $this->makeChannelKey($channel, '*');
+        return $this->makeChannelKey($channel, 'last');
     }
 
     private function makeChannelIdKey(string $channel, UuidInterface $uuid)
@@ -69,6 +68,7 @@ class PresenceStorage
         }
 
         $key = $this->makePresenceTokenKey($presenceToken);
+        $lastKey = $this->makeChannelLastKey($presenceToken->getChannel());
 
         // Calling directly multi/exec instead of the transaction abstraction provided by Predis
         // because the latter is not supported using Sentinel replication
@@ -76,6 +76,8 @@ class PresenceStorage
         $this->redisClient->multi();
         $this->redisClient->set($key, json_encode($presenceToken));
         $this->redisClient->expire($key, $ttl);
+        $this->redisClient->set($lastKey, $presenceToken->getUuid()->toString());
+        $this->redisClient->expire($lastKey, $ttl);
         $this->redisClient->exec();
     }
 
@@ -88,13 +90,9 @@ class PresenceStorage
      */
     public function channelExists(string $channel)
     {
-        $match = $this->makeChannelWildcard($channel);
+        $lastKey = $this->makeChannelLastKey($channel);
 
-        foreach (new Keyspace($this->redisClient, $match, 1) as $_) {
-            return true;
-        }
-
-        return false;
+        return $this->redisClient->exists($lastKey) > 0;
     }
 
     /**
@@ -109,7 +107,7 @@ class PresenceStorage
     {
         $key = $this->makeChannelIdKey($channel, $uuid);
 
-        return $this->redisClient->exists($key);
+        return $this->redisClient->exists($key) > 0;
     }
 
     /**
