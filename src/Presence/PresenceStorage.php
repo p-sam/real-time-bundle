@@ -59,17 +59,13 @@ class PresenceStorage
      */
     public function store(PresenceToken $presenceToken)
     {
-        $ttl = null;
+        $now = new \DateTime();
+        $ttl = $presenceToken->getToken()->getExpirationDate()->getTimestamp() - $now->getTimestamp();
+        if ($ttl < 0) {
+            // expiring the token in redis, if the token is already expired
+            $this->remove($presenceToken->getChannel(), $presenceToken->getUuid());
 
-        if (null !== $presenceToken->getToken()->getExpirationDate()) {
-            $now = new \DateTime();
-            $ttl = $presenceToken->getToken()->getExpirationDate()->getTimestamp() - $now->getTimestamp();
-            if ($ttl < 0) {
-                // expiring the token in redis, if the token is already expired
-                $this->remove($presenceToken->getChannel(), $presenceToken->getUuid());
-
-                return;
-            }
+            return;
         }
 
         $key = $this->makePresenceTokenKey($presenceToken);
@@ -79,11 +75,7 @@ class PresenceStorage
         // https://github.com/nrk/predis/issues/404
         $this->redisClient->multi();
         $this->redisClient->set($key, json_encode($presenceToken));
-        if (null === $ttl) {
-            $this->redisClient->persist($key);
-        } else {
-            $this->redisClient->expire($key, $ttl);
-        }
+        $this->redisClient->expire($key, $ttl);
         $this->redisClient->exec();
     }
 
