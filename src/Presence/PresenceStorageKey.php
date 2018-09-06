@@ -13,6 +13,8 @@ class PresenceStorageKey
     /** @var string */
     private $discriminator;
 
+    const ROOT_NAMESPACE = 'realtime';
+
     /**
      * PresenceStorageKey constructor.
      *
@@ -37,9 +39,33 @@ class PresenceStorageKey
     /**
      * @return string
      */
+    public function getCachePrefix(): string
+    {
+        return $this->cachePrefix;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNamespace(): string
+    {
+        return $this->namespace;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDiscriminator(): string
+    {
+        return $this->discriminator;
+    }
+
+    /**
+     * @return string
+     */
     public function toString(): string
     {
-        return '{'.$this->cachePrefix.'realtime:'.$this->namespace.'}:'.$this->discriminator;
+        return '{'.$this->cachePrefix.self::ROOT_NAMESPACE.':'.$this->namespace.'}:'.$this->discriminator;
     }
 
     private static function makeChannelKey(string $cachePrefix, string $channel, string $discriminator): self
@@ -47,6 +73,21 @@ class PresenceStorageKey
         self::assertChannelStorable($channel);
 
         return new self($cachePrefix, $channel, $discriminator);
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return PresenceStorageKey
+     */
+    public static function fromKeyString(string $key): self
+    {
+        $matches = [];
+        if (!preg_match('/\{(.*)'.self::ROOT_NAMESPACE.':([^\}]+)\}:(.+)$/', $key, $matches)) {
+            throw new \InvalidArgumentException("key '${key}' didn't match format");
+        }
+
+        return new self($matches[1], $matches[2], $matches[3]);
     }
 
     /**

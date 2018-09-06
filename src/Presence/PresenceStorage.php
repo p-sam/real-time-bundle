@@ -3,6 +3,7 @@
 namespace SP\RealTimeBundle\Presence;
 
 use Predis\Client;
+use Predis\Collection\Iterator\Keyspace;
 use Ramsey\Uuid\UuidInterface;
 
 class PresenceStorage
@@ -104,5 +105,49 @@ class PresenceStorage
         $key = $this->makeChannelIdKey($channel, $uuid)->toString();
 
         return $this->redisClient->del([$key]) > 0;
+    }
+
+    /**
+     * sync the last ttl and value scanning the tokens in every channel or the specified one.
+     *
+     * @param null|string $channel
+     */
+    public function syncChannelLast(?string $channel)
+    {
+        if (null === $channel) {
+            $matchKey = PresenceStorageKey::makeWildcardKey($this->cachePrefix);
+        } else {
+            $matchKey = PresenceStorageKey::makeChannelWildcardKey($this->cachePrefix, $channel);
+        }
+
+        $lastPresences = [];
+
+        foreach (new Keyspace($this->redisClient, $matchKey->toString()) as $key) {
+            $presenceKey = PresenceStorageKey::fromKeyString($key);
+            if ('last' === $presenceKey->getDiscriminator()) {
+                continue;
+            }
+            $expires = time() + $this->redisClient->ttl($presenceKey->toString());
+            if (!isset($lastPresences[$presenceKey->getNamespace()]) || $lastPresences[$presenceKey->getNamespace()]['expires'] < $expires) {
+                $lastPresences[$presenceKey->getNamespace()] = [
+                    'expires' => $expires,
+                    'id' => $presenceKey->getDiscriminator(),
+                ];
+            }
+        }
+
+        foreach ($lastPresences as $channel => $presence) {
+            $ttl = $presence['expires'] - time();
+            if ($ttl > 0) {
+                $lastKey = $this->makeChannelLastKey($channel)->toString();
+                $this->redisClient->multi();
+                $this->redisClient->set(
+                    $lastKey,
+                    $presence['id']
+                );
+                $this->redisClient->expire($lastKey, $ttl);
+                $this->redisClient->exec();
+            }
+        }
     }
 }

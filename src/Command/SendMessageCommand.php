@@ -22,6 +22,7 @@ class SendMessageCommand extends Command implements ContainerAwareInterface
     protected function configure()
     {
         $this
+            ->setName('real_time:send')
             ->setDescription('Send a message to the specified channel')
             ->addOption('skip-presence-check', null, InputOption::VALUE_NONE, 'Skip checking presence inside the channel')
             ->addArgument('channel', InputArgument::REQUIRED, 'Channel name')
