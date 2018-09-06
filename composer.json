@@ -13,6 +13,7 @@
   ],
   "require": {
     "php": ">= 7.1",
+    "ext-json": "*",
     "symfony/framework-bundle": "~3.4|^4",
     "symfony/event-dispatcher": "~3.4|^4",
     "symfony/config": "~3.4|^4",
