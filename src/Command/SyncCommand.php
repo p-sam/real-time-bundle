@@ -16,8 +16,6 @@ class SyncCommand extends Command implements ContainerAwareInterface
      */
     private $container;
 
-    protected static $defaultName = 'real_time:sync';
-
     protected function configure()
     {
         $this
