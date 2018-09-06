@@ -22,33 +22,14 @@ class PresenceStorage
         $this->cachePrefix = $cachePrefix;
     }
 
-    public static function assertChannelStorable(string $channel)
+    private function makeChannelIdKey(string $channel, UuidInterface $id): PresenceStorageKey
     {
-        if (preg_match('/^:|:$|::|\*|[^\w-_:]/', $channel)) {
-            throw new \InvalidArgumentException('channel name \''.$channel.'\' is not valid and can\'t be stored');
-        }
+        return PresenceStorageKey::makeChannelIdKey($this->cachePrefix, $channel, $id);
     }
 
-    private function makeChannelKey(string $channel, string $discriminator)
+    private function makeChannelLastKey(string $channel): PresenceStorageKey
     {
-        self::assertChannelStorable($channel);
-
-        return '{'.$this->cachePrefix.'realtime:'.$channel.'}:'.$discriminator;
-    }
-
-    private function makeChannelLastKey(string $channel)
-    {
-        return $this->makeChannelKey($channel, 'last');
-    }
-
-    private function makeChannelIdKey(string $channel, UuidInterface $uuid)
-    {
-        return $this->makeChannelKey($channel, $uuid->toString());
-    }
-
-    private function makePresenceTokenKey(PresenceToken $presenceToken)
-    {
-        return $this->makeChannelIdKey($presenceToken->getChannel(), $presenceToken->getUuid());
+        return PresenceStorageKey::makeChannelLastKey($this->cachePrefix, $channel);
     }
 
     /**
@@ -67,8 +48,8 @@ class PresenceStorage
             return;
         }
 
-        $key = $this->makePresenceTokenKey($presenceToken);
-        $lastKey = $this->makeChannelLastKey($presenceToken->getChannel());
+        $key = $this->makeChannelIdKey($presenceToken->getChannel(), $presenceToken->getUuid())->toString();
+        $lastKey = $this->makeChannelLastKey($presenceToken->getChannel())->toString();
 
         // Calling directly multi/exec instead of the transaction abstraction provided by Predis
         // because the latter is not supported using Sentinel replication
@@ -90,7 +71,7 @@ class PresenceStorage
      */
     public function channelExists(string $channel)
     {
-        $lastKey = $this->makeChannelLastKey($channel);
+        $lastKey = $this->makeChannelLastKey($channel)->toString();
 
         return $this->redisClient->exists($lastKey) > 0;
     }
@@ -105,7 +86,7 @@ class PresenceStorage
      */
     public function channelPresenceExists(string $channel, UuidInterface $uuid)
     {
-        $key = $this->makeChannelIdKey($channel, $uuid);
+        $key = $this->makeChannelIdKey($channel, $uuid)->toString();
 
         return $this->redisClient->exists($key) > 0;
     }
@@ -120,7 +101,7 @@ class PresenceStorage
      */
     public function remove(string $channel, UuidInterface $uuid)
     {
-        $key = $this->makeChannelIdKey($channel, $uuid);
+        $key = $this->makeChannelIdKey($channel, $uuid)->toString();
 
         return $this->redisClient->del([$key]) > 0;
     }
