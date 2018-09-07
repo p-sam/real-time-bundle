@@ -4,19 +4,17 @@ namespace SP\RealTimeBundle\Controller;
 
 use Ramsey\Uuid\Exception\InvalidUuidStringException;
 use Ramsey\Uuid\Uuid;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Annotation\Route;
 
 class PresenceController extends Controller
 {
     /**
-     * @Method("POST")
-     * @Route("/realtime/presence/{channel}", name="sp_real_time_presence_subscribe")
+     * @Route("/realtime/presence/{channel}", name="sp_real_time_presence_subscribe", methods={"POST"})
      *
      * @param string $channel
      *
@@ -28,8 +26,7 @@ class PresenceController extends Controller
     }
 
     /**
-     * @Method("DELETE")
-     * @Route("/realtime/presence/{channel}/{uuid}", name="sp_real_time_presence_unsubscribe")
+     * @Route("/realtime/presence/{channel}/{uuid}", name="sp_real_time_presence_unsubscribe", methods={"DELETE"})
      *
      * @param string $channel
      *
@@ -51,8 +48,7 @@ class PresenceController extends Controller
     }
 
     /**
-     * @Method("POST")
-     * @Route("/realtime/presence/{channel}/{uuid}/beacon_unsubscribe", name="sp_real_time_presence_beacon_unsubscribe")
+     * @Route("/realtime/presence/{channel}/{uuid}/beacon_unsubscribe", name="sp_real_time_presence_beacon_unsubscribe", methods={"POST"})
      *
      * @param string $channel
      * @param string $uuid

@@ -23,33 +23,14 @@ class PresenceStorage
         $this->cachePrefix = $cachePrefix;
     }
 
-    public static function assertChannelStorable(string $channel)
+    private function makeChannelIdKey(string $channel, UuidInterface $id): PresenceStorageKey
     {
-        if (preg_match('/^:|:$|::|\*|[^\w-_:]/', $channel)) {
-            throw new \InvalidArgumentException('channel name \''.$channel.'\' is not valid and can\'t be stored');
-        }
+        return PresenceStorageKey::makeChannelIdKey($this->cachePrefix, $channel, $id);
     }
 
-    private function makeChannelKey(string $channel, string $discriminator)
+    private function makeChannelLastKey(string $channel): PresenceStorageKey
     {
-        self::assertChannelStorable($channel);
-
-        return '{'.$this->cachePrefix.'realtime:'.$channel.'}:'.$discriminator;
-    }
-
-    private function makeChannelWildcard(string $channel)
-    {
-        return $this->makeChannelKey($channel, '*');
-    }
-
-    private function makeChannelIdKey(string $channel, UuidInterface $uuid)
-    {
-        return $this->makeChannelKey($channel, $uuid->toString());
-    }
-
-    private function makePresenceTokenKey(PresenceToken $presenceToken)
-    {
-        return $this->makeChannelIdKey($presenceToken->getChannel(), $presenceToken->getUuid());
+        return PresenceStorageKey::makeChannelLastKey($this->cachePrefix, $channel);
     }
 
     /**
@@ -59,31 +40,26 @@ class PresenceStorage
      */
     public function store(PresenceToken $presenceToken)
     {
-        $ttl = null;
+        $now = new \DateTime();
+        $ttl = $presenceToken->getToken()->getExpirationDate()->getTimestamp() - $now->getTimestamp();
+        if ($ttl < 0) {
+            // expiring the token in redis, if the token is already expired
+            $this->remove($presenceToken->getChannel(), $presenceToken->getUuid());
 
-        if (null !== $presenceToken->getToken()->getExpirationDate()) {
-            $now = new \DateTime();
-            $ttl = $presenceToken->getToken()->getExpirationDate()->getTimestamp() - $now->getTimestamp();
-            if ($ttl < 0) {
-                // expiring the token in redis, if the token is already expired
-                $this->remove($presenceToken->getChannel(), $presenceToken->getUuid());
-
-                return;
-            }
+            return;
         }
 
-        $key = $this->makePresenceTokenKey($presenceToken);
+        $key = $this->makeChannelIdKey($presenceToken->getChannel(), $presenceToken->getUuid())->toString();
+        $lastKey = $this->makeChannelLastKey($presenceToken->getChannel())->toString();
 
         // Calling directly multi/exec instead of the transaction abstraction provided by Predis
         // because the latter is not supported using Sentinel replication
         // https://github.com/nrk/predis/issues/404
         $this->redisClient->multi();
         $this->redisClient->set($key, json_encode($presenceToken));
-        if (null === $ttl) {
-            $this->redisClient->persist($key);
-        } else {
-            $this->redisClient->expire($key, $ttl);
-        }
+        $this->redisClient->expire($key, $ttl);
+        $this->redisClient->set($lastKey, $presenceToken->getUuid()->toString());
+        $this->redisClient->expire($lastKey, $ttl);
         $this->redisClient->exec();
     }
 
@@ -96,13 +72,9 @@ class PresenceStorage
      */
     public function channelExists(string $channel)
     {
-        $match = $this->makeChannelWildcard($channel);
+        $lastKey = $this->makeChannelLastKey($channel)->toString();
 
-        foreach (new Keyspace($this->redisClient, $match, 1) as $_) {
-            return true;
-        }
-
-        return false;
+        return $this->redisClient->exists($lastKey) > 0;
     }
 
     /**
@@ -115,9 +87,9 @@ class PresenceStorage
      */
     public function channelPresenceExists(string $channel, UuidInterface $uuid)
     {
-        $key = $this->makeChannelIdKey($channel, $uuid);
+        $key = $this->makeChannelIdKey($channel, $uuid)->toString();
 
-        return $this->redisClient->exists($key);
+        return $this->redisClient->exists($key) > 0;
     }
 
     /**
@@ -130,8 +102,52 @@ class PresenceStorage
      */
     public function remove(string $channel, UuidInterface $uuid)
     {
-        $key = $this->makeChannelIdKey($channel, $uuid);
+        $key = $this->makeChannelIdKey($channel, $uuid)->toString();
 
         return $this->redisClient->del([$key]) > 0;
+    }
+
+    /**
+     * sync the last ttl and value scanning the tokens in every channel or the specified one.
+     *
+     * @param null|string $channel
+     */
+    public function syncChannelLast(?string $channel)
+    {
+        if (null === $channel) {
+            $matchKey = PresenceStorageKey::makeWildcardKey($this->cachePrefix);
+        } else {
+            $matchKey = PresenceStorageKey::makeChannelWildcardKey($this->cachePrefix, $channel);
+        }
+
+        $lastPresences = [];
+
+        foreach (new Keyspace($this->redisClient, $matchKey->toString()) as $key) {
+            $presenceKey = PresenceStorageKey::fromKeyString($key);
+            if ('last' === $presenceKey->getDiscriminator()) {
+                continue;
+            }
+            $expires = time() + $this->redisClient->ttl($presenceKey->toString());
+            if (!isset($lastPresences[$presenceKey->getNamespace()]) || $lastPresences[$presenceKey->getNamespace()]['expires'] < $expires) {
+                $lastPresences[$presenceKey->getNamespace()] = [
+                    'expires' => $expires,
+                    'id' => $presenceKey->getDiscriminator(),
+                ];
+            }
+        }
+
+        foreach ($lastPresences as $channel => $presence) {
+            $ttl = $presence['expires'] - time();
+            if ($ttl > 0) {
+                $lastKey = $this->makeChannelLastKey($channel)->toString();
+                $this->redisClient->multi();
+                $this->redisClient->set(
+                    $lastKey,
+                    $presence['id']
+                );
+                $this->redisClient->expire($lastKey, $ttl);
+                $this->redisClient->exec();
+            }
+        }
     }
 }

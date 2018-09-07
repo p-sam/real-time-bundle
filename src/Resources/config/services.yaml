@@ -24,3 +24,11 @@ services:
     public: true
 
   SP\RealTimeBundle\Message\SenderService: "@sp_real_time.sender"
+
+  SP\RealTimeBundle\Command\SendMessageCommand:
+    tags:
+      - { name: 'console.command', command: 'real_time:send' }
+
+  SP\RealTimeBundle\Command\SyncCommand:
+    tags:
+      - { name: 'console.command', command: 'real_time:sync' }
