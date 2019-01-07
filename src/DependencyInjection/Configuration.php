@@ -12,9 +12,11 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
+        $treeBuilder = new TreeBuilder('sp_real_time');
+        // Keep compatibility with symfony/config < 4.2
+        $rootNode = \method_exists($treeBuilder, 'getRootNode') ? $treeBuilder->getRootNode() : $treeBuilder->root('sp_real_time');
 
-        $treeBuilder->root('sp_real_time')
+        $rootNode
             ->children()
                 ->arrayNode('ably')
                     ->children()
