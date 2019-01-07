@@ -74,4 +74,14 @@ class PresenceService
 
         return $this->configuration->getConfiguredPresenceStorage()->channelExists($channel);
     }
+
+    /**
+     * ensure every/specified channel knows its last presence.
+     *
+     * @param null|string $channel null for all
+     */
+    public function sync(?string $channel)
+    {
+        $this->configuration->getConfiguredPresenceStorage()->syncChannelLast($channel);
+    }
 }

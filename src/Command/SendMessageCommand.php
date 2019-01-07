@@ -17,8 +17,6 @@ class SendMessageCommand extends Command implements ContainerAwareInterface
      */
     private $container;
 
-    protected static $defaultName = 'real_time:send';
-
     protected function configure()
     {
         $this

@@ -11,8 +11,7 @@ function authCallbackFactory(ablyChannel) {
 
 module.exports = class AblyChannel extends Channel {
     constructor(name, restClient) {
-        super(name);
-        this._rest = restClient;
+        super(name, restClient);
         this._ablyRealtime = null;
     }
 
