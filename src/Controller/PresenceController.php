@@ -4,14 +4,14 @@ namespace SP\RealTimeBundle\Controller;
 
 use Ramsey\Uuid\Exception\InvalidUuidStringException;
 use Ramsey\Uuid\Uuid;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
-class PresenceController extends Controller
+class PresenceController extends AbstractController
 {
     /**
      * @Route("/realtime/presence/{channel}", name="sp_real_time_presence_subscribe", methods={"POST"})
