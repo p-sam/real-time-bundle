@@ -32,3 +32,11 @@ services:
   SP\RealTimeBundle\Command\SyncCommand:
     tags:
       - { name: 'console.command', command: 'real_time:sync' }
+
+  SP\RealTimeBundle\Controller\PresenceController:
+    calls:
+      - method: setContainer
+        arguments:
+          - '@service_container'
+    public: true
+
