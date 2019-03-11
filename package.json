@@ -1,6 +1,6 @@
 {
   "name": "real-time-bundle-lib",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Real-time events from server to browsers and mobile devices",
   "main": "js/index.js",
   "author": {
