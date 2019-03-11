@@ -31,7 +31,7 @@ class PresenceStorageKey
 
     public static function assertChannelStorable(string $channel)
     {
-        if (preg_match('/^:|:$|::|\*|[^\w-_:]/', $channel)) {
+        if (preg_match('/^:|:$|::|\*|[^\w\-_:]/', $channel)) {
             throw new \InvalidArgumentException('channel name \''.$channel.'\' is not valid and can\'t be stored');
         }
     }
