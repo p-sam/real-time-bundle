@@ -11,15 +11,22 @@ class AblyToken implements ConnectorTokenInterface
      * @var TokenDetails Wrapped Ably Token
      */
     private $tokenDetails;
+    /** @var int TTL to send to the client */
+    private $clientTtl;
 
     /**
      * AblyToken constructor.
      *
      * @param TokenDetails $tokenDetails
+     * @param int          $clientTtl
      */
-    public function __construct(TokenDetails $tokenDetails)
+    public function __construct(TokenDetails $tokenDetails, int $clientTtl)
     {
         $this->tokenDetails = $tokenDetails;
+        $this->clientTtl = $clientTtl;
+        if ($this->getTtl() < $clientTtl) {
+            throw new \RuntimeException("AblyToken was created with clientTtl (${clientTtl}) bigger than the actual ttl: ".json_encode($this->getTtl()));
+        }
     }
 
     /**
@@ -59,6 +66,10 @@ class AblyToken implements ConnectorTokenInterface
      */
     public function jsonSerialize(): array
     {
-        return $this->tokenDetails->toArray();
+        $tokenDetailsArray = $this->tokenDetails->toArray();
+        // we force a client TTL to permit early token refresh
+        $tokenDetailsArray['expires'] = $tokenDetailsArray['issued'] + ($this->clientTtl * 1000);
+
+        return $tokenDetailsArray;
     }
 }
