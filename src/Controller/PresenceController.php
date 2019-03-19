@@ -37,11 +37,11 @@ class PresenceController extends AbstractController
         try {
             $parsedUuid = Uuid::fromString($uuid);
         } catch (InvalidUuidStringException $e) {
-            throw new BadRequestHttpException('Invalid uuid', $e);
+            throw new BadRequestHttpException('Invalid uuid', $e, Response::HTTP_BAD_REQUEST);
         }
 
         if (!$this->get('sp_real_time.presence')->unsubscribe($channel, $parsedUuid)) {
-            throw new NotFoundHttpException("UUID '${parsedUuid}' not found in channel '${channel}'");
+            throw new NotFoundHttpException("UUID '${parsedUuid}' not found in channel '${channel}'", null, Response::HTTP_NOT_FOUND);
         }
 
         return new Response('', 204);
