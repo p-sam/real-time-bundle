@@ -23,13 +23,21 @@ class AblyConnector implements ConnectorInterface
     /**
      * RealtimeHelper constructor.
      *
-     * @param string $ablyApiKey API key used by Ably REST client
-     * @param int TTL for each token requested
+     * @param string   $ablyApiKey     API key used by Ably REST client
+     * @param int      $ttl            TTL for each token requested
+     * @param null|int $forceClientTtl TTL to be returned to the client
      */
-    public function __construct(string $ablyApiKey, int $ttl)
+    public function __construct(string $ablyApiKey, int $ttl, ?int $forceClientTtl = null)
     {
         $this->ablyClient = new AblyRest(['key' => $ablyApiKey]);
         $this->ttl = $ttl;
+        if (null === $forceClientTtl) {
+            $this->clientTtl = $ttl;
+        } elseif ($forceClientTtl > $ttl) {
+            throw new \InvalidArgumentException('$forceClientTtl > $ttl');
+        } else {
+            $this->clientTtl = $forceClientTtl;
+        }
     }
 
     /**
@@ -55,7 +63,8 @@ class AblyConnector implements ConnectorInterface
                     $channel => ['subscribe'],
                 ],
                 'ttl' => $this->ttl * 1000,
-            ])
+            ]),
+            $this->clientTtl
         );
     }
 }

@@ -27,6 +27,30 @@ class Configuration implements ConfigurationInterface
                             ->defaultValue(3600)
                             ->min(1)
                         ->end()
+                        ->integerNode('force_client_ttl')
+                            ->defaultValue(null)
+                            ->validate()
+                            ->ifTrue(function ($v) {
+                                if(null === $v) {
+                                    return false;
+                                }
+                                if (!is_numeric($v)) {
+                                    return true;
+                                }
+
+                                if (is_int($v)) {
+                                    return false;
+                                }
+
+                                if ($v > 1) {
+                                    return false;
+                                }
+
+                                return true;
+                            })
+                            ->thenInvalid('Expected an int > 1 or null ; had %s')
+                            ->end()
+                        ->end()
                     ->end()
                 ->end()
                 ->arrayNode('redis')

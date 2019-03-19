@@ -20,7 +20,7 @@ class RealTimeConfiguration
     private $presenceStorage;
 
     /**
-     * @var boolean Whether to check presence before sending
+     * @var bool Whether to check presence before sending
      */
     private $presenceCheckEnabled;
 
@@ -35,7 +35,7 @@ class RealTimeConfiguration
     public function __construct(Container $container, array $config)
     {
         // connector routing would happen here if multiple connectors were supported
-        $this->connector = new AblyConnector($config['ably']['api_key'], $config['ably']['ttl']);
+        $this->connector = new AblyConnector($config['ably']['api_key'], $config['ably']['ttl'], $config['ably']['force_client_ttl']);
 
         $this->presenceStorage = new PresenceStorage(
             $container->get($config['redis']['client']),
@@ -64,7 +64,8 @@ class RealTimeConfiguration
     /**
      * @return bool
      */
-    public function isPresenceCheckingEnabled(): bool {
+    public function isPresenceCheckingEnabled(): bool
+    {
         return $this->presenceCheckEnabled;
     }
 }
