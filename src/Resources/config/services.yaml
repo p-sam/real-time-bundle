@@ -1,7 +1,7 @@
 services:
   sp_real_time.configuration:
     class: SP\RealTimeBundle\RealTimeConfiguration
-    arguments: ["@service_container", "%sp_real_time.configuration%"]
+    arguments: ['@snc_redis.default', "%sp_real_time.configuration%"]
 
   SP\RealTimeBundle\RealTimeConfiguration: "@sp_real_time.configuration"
 

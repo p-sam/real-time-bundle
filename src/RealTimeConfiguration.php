@@ -5,7 +5,6 @@ namespace SP\RealTimeBundle;
 use SP\RealTimeBundle\Connector\Ably\AblyConnector;
 use SP\RealTimeBundle\Connector\ConnectorInterface;
 use SP\RealTimeBundle\Presence\PresenceStorage;
-use Symfony\Component\DependencyInjection\Container;
 
 class RealTimeConfiguration
 {
@@ -27,18 +26,18 @@ class RealTimeConfiguration
     /**
      * RealTimeConfiguration constructor.
      *
-     * @param Container $container
-     * @param array     $config
+     * @param \Predis\Client $redis
+     * @param array          $config
      *
      * @throws \Exception if resolving the redis client fails or throws an exception
      */
-    public function __construct(Container $container, array $config)
+    public function __construct(\Predis\Client $redis, array $config)
     {
         // connector routing would happen here if multiple connectors were supported
         $this->connector = new AblyConnector($config['ably']['api_key'], $config['ably']['ttl'], $config['ably']['force_client_ttl']);
 
         $this->presenceStorage = new PresenceStorage(
-            $container->get($config['redis']['client']),
+            $redis,
             $config['redis']['key_prefix']
         );
 
