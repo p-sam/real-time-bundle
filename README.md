@@ -50,7 +50,6 @@ sp_realtime:
         api_key: '- ably key here -'
         ttl: 3600 # in seconds
     redis:
-        client: 'snc_redis.default'
         key_prefix: 'app:'
     presence_check: true
 ```
