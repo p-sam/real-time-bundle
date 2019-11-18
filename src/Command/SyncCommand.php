@@ -2,21 +2,29 @@
 
 namespace SP\RealTimeBundle\Command;
 
+use SP\RealTimeBundle\Presence\PresenceService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class SyncCommand extends Command implements ContainerAwareInterface
+class SyncCommand extends Command
 {
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
+    protected static $defaultName = 'real_time:sync';
 
-    protected function configure()
+    /**
+     * @var PresenceService
+     */
+    private $presenceService;
+
+    public function __construct(PresenceService $presenceService)
+    {
+        parent::__construct();
+
+        $this->presenceService = $presenceService;
+    }
+
+    protected function configure(): void
     {
         $this
             ->setDescription('Sync ttl of channels to match their last tokens')
@@ -24,15 +32,10 @@ class SyncCommand extends Command implements ContainerAwareInterface
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->container->get('sp_real_time.presence')->sync($input->getOption('channel'));
+        $this->presenceService->sync($input->getOption('channel'));
 
         return 0;
-    }
-
-    public function setContainer(ContainerInterface $container = null)
-    {
-        $this->container = $container;
     }
 }
