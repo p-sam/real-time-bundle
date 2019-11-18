@@ -2,22 +2,30 @@
 
 namespace SP\RealTimeBundle\Command;
 
+use SP\RealTimeBundle\Message\SenderService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class SendMessageCommand extends Command implements ContainerAwareInterface
+class SendMessageCommand extends Command
 {
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
+    protected static $defaultName = 'real_time:send';
 
-    protected function configure()
+    /**
+     * @var SenderService
+     */
+    private $senderService;
+
+    public function __construct(SenderService $senderService)
+    {
+        parent::__construct();
+
+        $this->senderService = $senderService;
+    }
+
+    protected function configure(): void
     {
         $this
             ->setDescription('Send a message to the specified channel')
@@ -27,24 +35,17 @@ class SendMessageCommand extends Command implements ContainerAwareInterface
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $channel = $input->getArgument('channel');
         $message = $input->getArgument('message');
 
-        $senderService = $this->container->get('sp_real_time.sender');
-
         if ($input->hasOption('skip-presence-check')) {
-            $senderService->broadcastWithoutCheckingPresence($channel, $message);
+            $this->senderService->broadcastWithoutCheckingPresence($channel, $message);
         } else {
-            $senderService->broadcast($channel, $message);
+            $this->senderService->broadcast($channel, $message);
         }
 
         return 0;
-    }
-
-    public function setContainer(ContainerInterface $container = null)
-    {
-        $this->container = $container;
     }
 }
