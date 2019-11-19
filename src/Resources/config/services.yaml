@@ -26,10 +26,12 @@ services:
   SP\RealTimeBundle\Message\SenderService: "@sp_real_time.sender"
 
   SP\RealTimeBundle\Command\SendMessageCommand:
+    arguments: ['@sp_real_time.sender']
     tags:
       - { name: 'console.command', command: 'real_time:send' }
 
   SP\RealTimeBundle\Command\SyncCommand:
+    arguments: ['@sp_real_time.presence']
     tags:
       - { name: 'console.command', command: 'real_time:sync' }
 
