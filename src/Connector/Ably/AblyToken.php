@@ -11,7 +11,10 @@ class AblyToken implements ConnectorTokenInterface
      * @var TokenDetails Wrapped Ably Token
      */
     private $tokenDetails;
-    /** @var int TTL to send to the client */
+
+    /**
+     * @var int TTL to send to the client
+     */
     private $clientTtl;
 
     /**

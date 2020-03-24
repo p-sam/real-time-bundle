@@ -21,6 +21,11 @@ class AblyConnector implements ConnectorInterface
     private $ttl;
 
     /**
+     * @var int TTL to send to the client
+     */
+    private $clientTtl;
+
+    /**
      * RealtimeHelper constructor.
      *
      * @param string   $ablyApiKey     API key used by Ably REST client

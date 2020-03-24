@@ -5,8 +5,7 @@ namespace SP\RealTimeBundle\Message;
 class Message implements \JsonSerializable
 {
     /**
-     * @var mixed
-     *            actually scalar|array|\JsonSerializable
+     * @var mixed actually scalar|array|\JsonSerializable
      */
     private $data;
 

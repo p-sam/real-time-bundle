@@ -12,17 +12,17 @@
     }
   ],
   "require": {
-    "php": ">= 7.1",
+    "php": "^7.2",
     "ext-json": "*",
-    "symfony/framework-bundle": "~3.4|^4",
-    "symfony/event-dispatcher": "~3.4|^4",
-    "symfony/config": "~3.4|^4",
-    "ramsey/uuid": "^3.0",
+    "symfony/framework-bundle": "^4.4|^5.0",
+    "symfony/event-dispatcher": "^4.4|^5.0",
+    "symfony/config": "^4.4|^5.0",
+    "ramsey/uuid": "^3.0|^4.0",
     "ably/ably-php": "^1.0",
     "predis/predis": "^1.1"
   },
   "require-dev": {
-    "symfony/console": "~3.4|^4"
+    "symfony/console": "^4.4|^5.0"
   },
   "suggest": {
     "symfony/console": "If you want to use commands to interact with any channel"

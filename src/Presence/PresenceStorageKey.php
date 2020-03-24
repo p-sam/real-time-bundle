@@ -13,7 +13,7 @@ class PresenceStorageKey
     /** @var string */
     private $discriminator;
 
-    const ROOT_NAMESPACE = 'realtime';
+    public const ROOT_NAMESPACE = 'realtime';
 
     /**
      * PresenceStorageKey constructor.
