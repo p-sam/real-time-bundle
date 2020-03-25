@@ -12,6 +12,7 @@ class PresenceStorage
      * @var Client
      */
     private $redisClient;
+
     /**
      * @var string
      */
@@ -136,10 +137,10 @@ class PresenceStorage
             }
         }
 
-        foreach ($lastPresences as $channel => $presence) {
+        foreach ($lastPresences as $presenceChannel => $presence) {
             $ttl = $presence['expires'] - time();
             if ($ttl > 0) {
-                $lastKey = $this->makeChannelLastKey($channel)->toString();
+                $lastKey = $this->makeChannelLastKey($presenceChannel)->toString();
                 $this->redisClient->multi();
                 $this->redisClient->set(
                     $lastKey,

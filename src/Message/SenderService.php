@@ -48,8 +48,7 @@ class SenderService
      * Broadcasts a message to the specified channel even if no client seems subscribed.
      *
      * @param string        $channel
-     * @param Message|mixed $message
-     * @param mixed         $dataOrMessage
+     * @param Message|mixed $dataOrMessage
      */
     public function broadcastWithoutCheckingPresence(string $channel, $dataOrMessage)
     {

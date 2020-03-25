@@ -13,8 +13,7 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder('sp_real_time');
-        // Keep compatibility with symfony/config < 4.2
-        $rootNode = \method_exists($treeBuilder, 'getRootNode') ? $treeBuilder->getRootNode() : $treeBuilder->root('sp_real_time');
+        $rootNode = $treeBuilder->getRootNode();
 
         $rootNode
             ->children()
@@ -30,7 +29,7 @@ class Configuration implements ConfigurationInterface
                         ->integerNode('force_client_ttl')
                             ->defaultValue(null)
                             ->validate()
-                            ->ifTrue(function ($v) {
+                            ->ifTrue(static function ($v) {
                                 if(null === $v) {
                                     return false;
                                 }
